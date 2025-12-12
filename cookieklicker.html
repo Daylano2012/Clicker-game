@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Professional Cookie Clicker</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; background-color: #f0f0f0; margin: 0; padding: 0; }
+        h1 { margin-top: 30px; }
+        #cookie { 
+            font-size: 100px; 
+            cursor: pointer; 
+            margin-top: 20px; 
+            user-select: none; /* voorkomt selecteren */
+            -webkit-user-select: none; /* voor Chrome/Edge */
+        }
+        #count { font-size: 36px; margin-top: 20px; }
+        .upgrade { margin: 10px auto; padding: 10px 20px; font-size: 20px; cursor: pointer; display: block; width: 220px; }
+        #upgrades { margin-top: 30px; }
+        #footer { margin-top: 50px; font-size: 14px; color: #555; }
+    </style>
+</head>
+<body>
+    <h1>🍪 Professional Cookie Clicker 🍪</h1>
+    <div id="count">0 Cookies</div>
+    <button id="cookie">🍪</button>
+
+    <div id="upgrades">
+        <button class="upgrade" id="autoClicker">Buy Auto-Clicker (50 Cookies)</button>
+        <button class="upgrade" id="doubleClick">Double Cookies Per Click (100 Cookies)</button>
+    </div>
+
+    <div id="footer">Progressie wordt automatisch opgeslagen!</div>
+
+    <script>
+        // Basiswaarden
+        let cookies = localStorage.getItem("cookies") ? parseInt(localStorage.getItem("cookies")) : 0;
+        let cookiesPerClick = localStorage.getItem("cpc") ? parseInt(localStorage.getItem("cpc")) : 1;
+        let autoClickers = localStorage.getItem("autoClickers") ? parseInt(localStorage.getItem("autoClickers")) : 0;
+
+        const countDisplay = document.getElementById("count");
+        const cookieBtn = document.getElementById("cookie");
+        const autoClickerBtn = document.getElementById("autoClicker");
+        const doubleClickBtn = document.getElementById("doubleClick");
+
+        // Update display
+        function updateDisplay() {
+            countDisplay.textContent = `${cookies} Cookies`;
+            autoClickerBtn.textContent = `Buy Auto-Clicker (${50 + autoClickers*25} Cookies)`;
+            doubleClickBtn.textContent = `Double Cookies Per Click (${100 + cookiesPerClick*50} Cookies)`;
+        }
+
+        // Klik event
+        cookieBtn.addEventListener("click", () => {
+            cookies += cookiesPerClick;
+            updateDisplay();
+            saveProgress();
+        });
+
+        // Auto-clicker kopen
+        autoClickerBtn.addEventListener("click", () => {
+            let price = 50 + autoClickers*25;
+            if(cookies >= price) {
+                cookies -= price;
+                autoClickers++;
+                updateDisplay();
+                saveProgress();
+            }
+        });
+
+        // Double click kopen
+        doubleClickBtn.addEventListener("click", () => {
+            let price = 100 + cookiesPerClick*50;
+            if(cookies >= price) {
+                cookies -= price;
+                cookiesPerClick *= 2;
+                updateDisplay();
+                saveProgress();
+            }
+        });
+
+        // Auto-clicker interval
+        setInterval(() => {
+            cookies += autoClickers;
+            updateDisplay();
+            saveProgress();
+        }, 1000);
+
+        // Save progress
+        function saveProgress() {
+            localStorage.setItem("cookies", cookies);
+            localStorage.setItem("cpc", cookiesPerClick);
+            localStorage.setItem("autoClickers", autoClickers);
+        }
+
+        // Init display
+        updateDisplay();
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cookie Clicker with Leaderboard</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; background-color: #f0f0f0; margin: 0; padding: 0; }
+        h1 { margin-top: 30px; }
+        #cookie { font-size: 100px; cursor: pointer; margin-top: 20px; user-select: none; }
+        #count { font-size: 36px; margin-top: 20px; }
+        .upgrade { margin: 10px auto; padding: 10px 20px; font-size: 20px; cursor: pointer; display: block; width: 220px; }
+        #upgrades { margin-top: 30px; }
+        #leaderboard { margin-top: 30px; font-size: 18px; }
+        #footer { margin-top: 30px; font-size: 14px; color: #555; }
+    </style>
+</head>
+<body>
+    <h1>🍪 Cookie Clicker 🍪</h1>
+    <div id="count">0 Cookies</div>
+    <button id="cookie">🍪</button>
+
+    <div id="upgrades">
+        <button class="upgrade" id="autoClicker">Buy Auto-Clicker (50 Cookies)</button>
+        <button class="upgrade" id="doubleClick">Double Cookies Per Click (100 Cookies)</button>
+    </div>
+
+    <div id="leaderboard">
+        <h2>Leaderboard (Top 5)</h2>
+        <ol id="leaderboardList"></ol>
+    </div>
+
+    <div id="footer">Progressie wordt automatisch opgeslagen!</div>
+
+    <script>
+        // Basiswaarden
+        let cookies = localStorage.getItem("cookies") ? parseInt(localStorage.getItem("cookies")) : 0;
+        let cookiesPerClick = localStorage.getItem("cpc") ? parseInt(localStorage.getItem("cpc")) : 1;
+        let autoClickers = localStorage.getItem("autoClickers") ? parseInt(localStorage.getItem("autoClickers")) : 0;
+
+        const countDisplay = document.getElementById("count");
+        const cookieBtn = document.getElementById("cookie");
+        const autoClickerBtn = document.getElementById("autoClicker");
+        const doubleClickBtn = document.getElementById("doubleClick");
+        const leaderboardList = document.getElementById("leaderboardList");
+
+        // Leaderboard ophalen
+        let leaderboard = localStorage.getItem("leaderboard") ? JSON.parse(localStorage.getItem("leaderboard")) : [];
+
+        // Update display
+        function updateDisplay() {
+            countDisplay.textContent = `${cookies} Cookies`;
+            autoClickerBtn.textContent = `Buy Auto-Clicker (${50 + autoClickers*25} Cookies)`;
+            doubleClickBtn.textContent = `Double Cookies Per Click (${100 + cookiesPerClick*50} Cookies)`;
+            updateLeaderboard();
+        }
+
+        // Klik event
+        cookieBtn.addEventListener("click", () => {
+            cookies += cookiesPerClick;
+            updateDisplay();
+            saveProgress();
+        });
+
+        // Auto-clicker kopen
+        autoClickerBtn.addEventListener("click", () => {
+            let price = 50 + autoClickers*25;
+            if(cookies >= price) {
+                cookies -= price;
+                autoClickers++;
+                updateDisplay();
+                saveProgress();
+            }
+        });
+
+        // Double click kopen
+        doubleClickBtn.addEventListener("click", () => {
+            let price = 100 + cookiesPerClick*50;
+            if(cookies >= price) {
+                cookies -= price;
+                cookiesPerClick *= 2;
+                updateDisplay();
+                saveProgress();
+            }
+        });
+
+        // Auto-clicker interval
+        setInterval(() => {
+            cookies += autoClickers;
+            updateDisplay();
+            saveProgress();
+        }, 1000);
+
+        // Save progress
+        function saveProgress() {
+            localStorage.setItem("cookies", cookies);
+            localStorage.setItem("cpc", cookiesPerClick);
+            localStorage.setItem("autoClickers", autoClickers);
+
+            // Update leaderboard
+            updateLeaderboardData();
+        }
+
+        // Update leaderboard data
+        function updateLeaderboardData() {
+            // Voeg huidige score toe
+            leaderboard.push(cookies);
+            // Sorteer aflopend en haal top 5
+            leaderboard = leaderboard.sort((a,b) => b-a).slice(0,5);
+            localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+        }
+
+        // Update leaderboard display
+        function updateLeaderboard() {
+            leaderboardList.innerHTML = "";
+            leaderboard.forEach((score, index) => {
+                const li = document.createElement("li");
+                li.textContent = score + " Cookies";
+                leaderboardList.appendChild(li);
+            });
+        }
+
+        // Init
+        updateDisplay();
+    </script>
+</body>
+</html>
